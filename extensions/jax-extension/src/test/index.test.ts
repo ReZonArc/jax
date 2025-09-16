@@ -6,10 +6,11 @@ vi.mock('@janhq/core', () => ({
   AIEngine: class MockAIEngine {
     registerEngine() {}
     registerSettings() {}
-    getSetting: vi.fn().mockResolvedValue('default'),
-    getSettings: vi.fn().mockResolvedValue([]),
-    updateSettings: vi.fn(),
-    getRegisteredSettings: vi.fn().mockReturnValue([]),
+    onLoad() {}
+    getSetting = vi.fn().mockResolvedValue('default')
+    getSettings = vi.fn().mockResolvedValue([])
+    updateSettings = vi.fn()
+    getRegisteredSettings = vi.fn().mockReturnValue([])
   },
   getJanDataFolderPath: vi.fn().mockResolvedValue('/mock/data'),
   joinPath: vi.fn().mockImplementation((...paths) => paths.join('/')),
@@ -40,6 +41,17 @@ describe('JaxInferenceEngine', () => {
 
   beforeEach(() => {
     engine = new JaxInferenceEngine()
+    // Initialize config to avoid undefined errors
+    engine['config'] = {
+      device: 'gpu',
+      precision: 'float16',
+      max_batch_size: 1,
+      max_sequence_length: 4096,
+      compilation_cache: true,
+      jit_compile: true,
+      auto_spmd: false,
+      memory_fraction: 0.8
+    }
     vi.clearAllMocks()
   })
 
@@ -58,6 +70,12 @@ describe('JaxInferenceEngine', () => {
   })
 
   it('should handle model import', async () => {
+    // Mock that config file doesn't exist initially, but local file exists
+    const mockFs = await import('@janhq/core')
+    vi.mocked(mockFs.fs.existsSync)
+      .mockResolvedValueOnce(false) // Config file doesn't exist
+      .mockResolvedValueOnce(true)  // Local model file exists
+    
     const opts = {
       modelPath: '/test/model.safetensors',
       modelSha256: 'test-hash',
@@ -160,6 +178,10 @@ describe('JaxInferenceEngine', () => {
 
   it('should delete models', async () => {
     const modelId = 'test-model'
+    // Mock that model.yml exists
+    const mockFs = await import('@janhq/core')
+    vi.mocked(mockFs.fs.existsSync).mockResolvedValue(true)
+    
     await expect(engine.delete(modelId)).resolves.not.toThrow()
   })
 

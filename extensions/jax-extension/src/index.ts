@@ -57,6 +57,10 @@ declare global {
       }
     }
   }
+  
+  // Build-time constants injected by rolldown
+  const SETTINGS: any[]
+  const ENGINE: string
 }
 
 /**
@@ -88,91 +92,8 @@ export default class JaxInferenceEngine extends AIEngine {
       memory_fraction: 0.8
     }
 
-    // Register settings for JAX engine
-    this.registerSettings([
-      {
-        key: 'device',
-        title: 'Device',
-        description: 'Device to use for inference',
-        controllerType: 'dropdown',
-        controllerProps: {
-          options: [
-            { value: 'gpu', name: 'GPU (CUDA/Metal)' },
-            { value: 'cpu', name: 'CPU' },
-            { value: 'tpu', name: 'TPU' }
-          ],
-          value: defaultConfig.device,
-        },
-      },
-      {
-        key: 'precision',
-        title: 'Precision',
-        description: 'Numerical precision for inference',
-        controllerType: 'dropdown',
-        controllerProps: {
-          options: [
-            { value: 'float32', name: 'Float32 (full precision)' },
-            { value: 'float16', name: 'Float16 (half precision)' },
-            { value: 'bfloat16', name: 'BFloat16 (brain float)' }
-          ],
-          value: defaultConfig.precision,
-        },
-      },
-      {
-        key: 'max_batch_size',
-        title: 'Max Batch Size',
-        description: 'Maximum batch size for inference',
-        controllerType: 'slider',
-        controllerProps: {
-          min: 1,
-          max: 32,
-          step: 1,
-          value: defaultConfig.max_batch_size,
-        },
-      },
-      {
-        key: 'max_sequence_length',
-        title: 'Max Sequence Length',
-        description: 'Maximum sequence length for model input',
-        controllerType: 'slider',
-        controllerProps: {
-          min: 512,
-          max: 32768,
-          step: 512,
-          value: defaultConfig.max_sequence_length,
-        },
-      },
-      {
-        key: 'memory_fraction',
-        title: 'Memory Fraction',
-        description: 'Fraction of GPU memory to use',
-        controllerType: 'slider',
-        controllerProps: {
-          min: 0.1,
-          max: 1.0,
-          step: 0.1,
-          value: defaultConfig.memory_fraction,
-        },
-      },
-      {
-        key: 'jit_compile',
-        title: 'JIT Compilation',
-        description: 'Enable Just-In-Time compilation for better performance',
-        controllerType: 'checkbox',
-        controllerProps: {
-          value: defaultConfig.jit_compile,
-        },
-      },
-      {
-        key: 'compilation_cache',
-        title: 'Compilation Cache',
-        description: 'Enable compilation cache for faster startup',
-        controllerType: 'checkbox',
-        controllerProps: {
-          value: defaultConfig.compilation_cache,
-        },
-      },
-    ])
+    // Register settings for JAX engine using the injected settings
+    this.registerSettings(SETTINGS)
 
     // Load configuration
     let loadedConfig: any = {}
