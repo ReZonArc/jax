@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2018",
+    "module": "ES6",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "rootDir": "./src",
+    "lib": ["ES2018", "DOM"]
+  },
+  "include": ["./src"],
+  "exclude": ["**/*.test.ts"]
+}
